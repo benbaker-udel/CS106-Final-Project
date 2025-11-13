@@ -1,0 +1,81 @@
+from drafter import *
+from dataclasses import dataclass
+from bakery import assert_equal
+@dataclass
+class Food:
+    name:str
+    cals:int
+    carbs:int
+    protein:int
+@dataclass
+class State:
+    foods:list[Food]
+    targ_cals:int
+    targ_carbs:int
+    targ_protein:int
+    meals:int
+
+
+def update_food(state:State,name:str,cals:int,carbs:int,protein:int) -> State:
+    state.foods.append(Food(
+        name,
+        cals,
+        carbs,
+        protein
+    ))
+    return state
+
+@route
+def index(state:State) -> Page:
+    '''
+    parameters:
+        state(State): tells the function what data it needs to use
+    Returns:
+        index(Page): returns the index page
+    '''
+    string=''
+    for food in state.foods:
+        string= string +' '+food.name
+    return Page(
+        state,
+        content=[ 'Meal Maker 1.0',
+                  string,
+                  Button('Input Food','/make_food'),
+                  Button('Make meal','/make_meal')])
+@route
+def make_food(state:State) -> Page:
+    '''
+    parameters:
+        state(State): tells the function what data it needs to use
+    Returns:
+        index(Page): returns the index page
+    '''
+    return Page(
+        state,
+        content=[ 'Enter Food',
+                  TextBox('Name', ''),
+                  TextBox('cals',0),
+                  TextBox('carbs',0),
+                  TextBox('protein',0),
+                  Button('Create Food','/create_food'),]
+    )
+@route
+def create_food(state:State,name:str,cals:int,carbs:int,protein) -> Page:
+    new_state=update_food(state,name,cals,carbs,protein)
+    return index(new_state)
+
+assert_equal(
+ make_food(State(foods=[], targ_cals=0, targ_carbs=0, targ_protein=0, meals=0)),
+ Page(state=State(foods=[], targ_cals=0, targ_carbs=0, targ_protein=0, meals=0),
+     content=['Enter Food',
+              TextBox(name='cals', kind='text', default_value='0'),
+              TextBox(name='carbs', kind='text', default_value='0'),
+              TextBox(name='protein', kind='text', default_value='0'),
+              Button(text='Create Food', url='/create_food')]))
+assert_equal(
+ index(State(foods=[], targ_cals=0, targ_carbs=0, targ_protein=0, meals=0)),
+ Page(state=State(foods=[], targ_cals=0, targ_carbs=0, targ_protein=0, meals=0),
+     content=['Meal Maker 1.0', Button(text='Input Food', url='/make_food'), Button(text='Make meal', url='/make_meal')]))
+
+
+start_server(State([],0,0,0,0))

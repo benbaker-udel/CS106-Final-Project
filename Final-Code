@@ -1,9 +1,16 @@
 from drafter import *
 from dataclasses import dataclass
 from bakery import assert_equal
+import random
 @dataclass
 class Food:
     name:str
+    cals:int
+    carbs:int
+    protein:int
+@dataclass
+class Meal:
+    foods:list[Food]
     cals:int
     carbs:int
     protein:int
@@ -13,7 +20,7 @@ class State:
     targ_cals:int
     targ_carbs:int
     targ_protein:int
-    meals:int
+    meals:list[Meal]
 
 
 def update_food(state:State,name:str,cals:int,carbs:int,protein:int) -> State:
@@ -24,6 +31,32 @@ def update_food(state:State,name:str,cals:int,carbs:int,protein:int) -> State:
         protein
     ))
     return state
+def update_meal(state: State) -> Meal:
+    foods = []
+    cals = 0
+    carbs = 0
+    protein = 0
+    sorted_foods = sorted(state.foods, key=lambda f: f.cals)
+    for food in sorted_foods:
+        if cals + food.cals <= state.targ_cals:
+            foods.append(food)
+            cals += food.cals
+            carbs += food.carbs
+            protein += food.protein
+    best_carb_food = max(state.foods, key=lambda f: f.carbs)
+    best_protein_food = max(state.foods, key=lambda f: f.protein)
+    while carbs < state.targ_carbs:
+        foods.append(best_carb_food)
+        carbs += best_carb_food.carbs
+        cals += best_carb_food.cals
+        protein += best_carb_food.protein
+    while protein < state.targ_protein:
+        foods.append(best_protein_food)
+        protein += best_protein_food.protein
+        carbs += best_protein_food.carbs
+        cals += best_protein_food.cals
+    return Meal(foods, cals, carbs, protein)
+
 
 @route
 def index(state:State) -> Page:
@@ -53,29 +86,125 @@ def make_food(state:State) -> Page:
     return Page(
         state,
         content=[ 'Enter Food',
-                  TextBox('Name', ''),
+                  TextBox('name', ''),
                   TextBox('cals',0),
                   TextBox('carbs',0),
                   TextBox('protein',0),
                   Button('Create Food','/create_food'),]
     )
+
+
 @route
-def create_food(state:State,name:str,cals:int,carbs:int,protein) -> Page:
+def create_food(state:State,name:str,cals:int,carbs:int,protein:int) -> Page:
     new_state=update_food(state,name,cals,carbs,protein)
     return index(new_state)
+@route
+def make_meal(state:State) -> Page:
+    return Page(
+        state,
+        content=["Meal Making Page",
+                  TextBox('targ_cals', 0),
+                  TextBox('targ_carbs', 0),
+                  TextBox('targ_protein', 0),
+                  Button('Create_Meal','/create_meal')])
+@route
+def create_meal(state:State,targ_cals:int,targ_carbs:int,targ_protein:int) -> Page:
+    new_state=State(state.foods,targ_cals,targ_carbs,targ_protein,update_meal(state))
+    return Page(
+        new_state, content=[str(new_state.meals),
+                            Button('Go Home','/index')]
+    )
+assert_equal(
+ create_meal(State(foods=[Food(name='a', cals=100, carbs=10, protein=10), Food(name='b', cals=100, carbs=13, protein=50)], targ_cals=0, targ_carbs=0, targ_protein=0, meals=[]), 300, 30, 30),
+ Page(state=State(foods=[Food(name='a', cals=100, carbs=10, protein=10), Food(name='b', cals=100, carbs=13, protein=50)],
+                 targ_cals=300,
+                 targ_carbs=30,
+                 targ_protein=30,
+                 meals=Meal(foods=[], cals=0, carbs=0, protein=0)),
+     content=['Meal(foods=[], cals=0, carbs=0, protein=0)', Button(text='Go Home', url='/')]))
 
 assert_equal(
- make_food(State(foods=[], targ_cals=0, targ_carbs=0, targ_protein=0, meals=0)),
- Page(state=State(foods=[], targ_cals=0, targ_carbs=0, targ_protein=0, meals=0),
+ make_meal(State(foods=[Food(name='a', cals=100, carbs=10, protein=10), Food(name='b', cals=100, carbs=13, protein=50)], targ_cals=0, targ_carbs=0, targ_protein=0, meals=[])),
+ Page(state=State(foods=[Food(name='a', cals=100, carbs=10, protein=10), Food(name='b', cals=100, carbs=13, protein=50)],
+                 targ_cals=0,
+                 targ_carbs=0,
+                 targ_protein=0,
+                 meals=[]),
+     content=['Meal Making Page',
+              TextBox(name='targ_cals', kind='text', default_value='0'),
+              TextBox(name='targ_carbs', kind='text', default_value='0'),
+              TextBox(name='targ_protein', kind='text', default_value='0'),
+              Button(text='Create_Meal', url='/create_meal')]))
+
+assert_equal(
+ create_food(State(foods=[], targ_cals=0, targ_carbs=0, targ_protein=0, meals=[]), 'a', 100, 10, 10),
+ Page(state=State(foods=[Food(name='a', cals=100, carbs=10, protein=10)],
+                 targ_cals=0,
+                 targ_carbs=0,
+                 targ_protein=0,
+                 meals=[]),
+     content=['Meal Maker 1.0',
+              ' a',
+              Button(text='Input Food', url='/make_food'),
+              Button(text='Make meal', url='/make_meal')]))
+
+assert_equal(
+ index(State(foods=[Food(name='a', cals=100, carbs=10, protein=10), Food(name='b', cals=100, carbs=13, protein=50)], targ_cals=300, targ_carbs=30, targ_protein=30, meals=Meal(foods=[], cals=0, carbs=0, protein=0))),
+ Page(state=State(foods=[Food(name='a', cals=100, carbs=10, protein=10), Food(name='b', cals=100, carbs=13, protein=50)],
+                 targ_cals=300,
+                 targ_carbs=30,
+                 targ_protein=30,
+                 meals=Meal(foods=[], cals=0, carbs=0, protein=0)),
+     content=['Meal Maker 1.0',
+              ' a b',
+              Button(text='Input Food', url='/make_food'),
+              Button(text='Make meal', url='/make_meal')]))
+
+assert_equal(
+ index(State(foods=[], targ_cals=0, targ_carbs=0, targ_protein=0, meals=[])),
+ Page(state=State(foods=[], targ_cals=0, targ_carbs=0, targ_protein=0, meals=[]),
+     content=['Meal Maker 1.0',
+              '',
+              Button(text='Input Food', url='/make_food'),
+              Button(text='Make meal', url='/make_meal')]))
+
+assert_equal(
+ make_food(State(foods=[], targ_cals=0, targ_carbs=0, targ_protein=0, meals=[])),
+ Page(state=State(foods=[], targ_cals=0, targ_carbs=0, targ_protein=0, meals=[]),
      content=['Enter Food',
+              TextBox(name='name', kind='text', default_value=''),
               TextBox(name='cals', kind='text', default_value='0'),
               TextBox(name='carbs', kind='text', default_value='0'),
               TextBox(name='protein', kind='text', default_value='0'),
               Button(text='Create Food', url='/create_food')]))
+
 assert_equal(
- index(State(foods=[], targ_cals=0, targ_carbs=0, targ_protein=0, meals=0)),
- Page(state=State(foods=[], targ_cals=0, targ_carbs=0, targ_protein=0, meals=0),
-     content=['Meal Maker 1.0', Button(text='Input Food', url='/make_food'), Button(text='Make meal', url='/make_meal')]))
+ create_food(State(foods=[Food(name='a', cals=100, carbs=10, protein=10)], targ_cals=0, targ_carbs=0, targ_protein=0, meals=[]), 'b', 100, 13, 50),
+ Page(state=State(foods=[Food(name='a', cals=100, carbs=10, protein=10), Food(name='b', cals=100, carbs=13, protein=50)],
+                 targ_cals=0,
+                 targ_carbs=0,
+                 targ_protein=0,
+                 meals=[]),
+     content=['Meal Maker 1.0',
+              ' a b',
+              Button(text='Input Food', url='/make_food'),
+              Button(text='Make meal', url='/make_meal')]))
+
+assert_equal(
+ make_food(State(foods=[Food(name='a', cals=100, carbs=10, protein=10)], targ_cals=0, targ_carbs=0, targ_protein=0, meals=[])),
+ Page(state=State(foods=[Food(name='a', cals=100, carbs=10, protein=10)],
+                 targ_cals=0,
+                 targ_carbs=0,
+                 targ_protein=0,
+                 meals=[]),
+     content=['Enter Food',
+              TextBox(name='name', kind='text', default_value=''),
+              TextBox(name='cals', kind='text', default_value='0'),
+              TextBox(name='carbs', kind='text', default_value='0'),
+              TextBox(name='protein', kind='text', default_value='0'),
+              Button(text='Create Food', url='/create_food')]))
 
 
-start_server(State([],0,0,0,0))
+
+
+start_server(State([],0,0,0,[]))

@@ -602,5 +602,17 @@ assert_equal(
               Button(text='View Foods', url='/food_page')]))
 
 
+set_site_information(
+    author="benbaker@udel.edu",
+    description="""A website that takes inputs for food macronutrients
+    and autogenerates meals bassed off of them.""",
+    sources=["Drafter Documentation, Random documentation"],
+    planning=[I didn't plan],
+    links=["https://github.com/benbaker-udel/CS106-Final-Project]
+)
+hide_debug_information()
+set_website_title("Your Website Title")
+set_website_framed(False)
+
 
 start_server(State([],0,0,0,[]))

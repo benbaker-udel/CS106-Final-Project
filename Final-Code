@@ -608,7 +608,8 @@ set_site_information(
     and autogenerates meals bassed off of them.""",
     sources=["Drafter Documentation, Random documentation"],
     planning=[I didn't plan],
-    links=["https://github.com/benbaker-udel/CS106-Final-Project]
+    links=["https://github.com/benbaker-udel/CS106-Final-Project",
+    "https://drive.google.com/file/d/1rBJJmNHyRt7f0_hzrknw2pwkaoIWl6Lb/view?usp=sharing"]
 )
 hide_debug_information()
 set_website_title("Your Website Title")

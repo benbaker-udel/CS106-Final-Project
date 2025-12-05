@@ -1,3 +1,4 @@
+
 from drafter import *
 from dataclasses import dataclass
 from bakery import assert_equal
@@ -74,7 +75,9 @@ def index(state:State) -> Page:
         content=[ 'Meal Maker 1.0',
                   string,
                   Button('Input Food','/make_food'),
-                  Button('Make meal','/make_meal')])
+                  Button('Make meal','/make_meal'),
+                  Button('View Meals', '/meal_page'),
+                  Button('View Foods', '/food_page'),])
 @route
 def make_food(state:State) -> Page:
     '''
@@ -114,59 +117,35 @@ def create_meal(state:State,targ_cals:int,targ_carbs:int,targ_protein:int) -> Pa
         new_state, content=[str(new_state.meals),
                             Button('Go Home','/index')]
     )
+@route
+def meal_page(state:State) -> Page:
+    return Page(
+        state,
+        content=['Meals!',
+                 str(state.meals),
+                 Button('Go Home','/index')]
+    )
+@route
+def food_page(state:State) -> Page:
+    return Page(
+        state,
+        content=['Food!',
+                 str(state.foods),
+                 Button('Go Home', '/index')]
+    )
 assert_equal(
- create_meal(State(foods=[Food(name='a', cals=100, carbs=10, protein=10), Food(name='b', cals=100, carbs=13, protein=50)], targ_cals=0, targ_carbs=0, targ_protein=0, meals=[]), 300, 30, 30),
- Page(state=State(foods=[Food(name='a', cals=100, carbs=10, protein=10), Food(name='b', cals=100, carbs=13, protein=50)],
-                 targ_cals=300,
-                 targ_carbs=30,
-                 targ_protein=30,
+ make_meal(State(foods=[Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Cheese', cals=80, carbs=2, protein=8)], targ_cals=2000, targ_carbs=100, targ_protein=100, meals=Meal(foods=[], cals=0, carbs=0, protein=0))),
+ Page(state=State(foods=[Food(name='Bread', cals=200, carbs=10, protein=3),
+                        Food(name='Cheese', cals=80, carbs=2, protein=8)],
+                 targ_cals=2000,
+                 targ_carbs=100,
+                 targ_protein=100,
                  meals=Meal(foods=[], cals=0, carbs=0, protein=0)),
-     content=['Meal(foods=[], cals=0, carbs=0, protein=0)', Button(text='Go Home', url='/')]))
-
-assert_equal(
- make_meal(State(foods=[Food(name='a', cals=100, carbs=10, protein=10), Food(name='b', cals=100, carbs=13, protein=50)], targ_cals=0, targ_carbs=0, targ_protein=0, meals=[])),
- Page(state=State(foods=[Food(name='a', cals=100, carbs=10, protein=10), Food(name='b', cals=100, carbs=13, protein=50)],
-                 targ_cals=0,
-                 targ_carbs=0,
-                 targ_protein=0,
-                 meals=[]),
      content=['Meal Making Page',
               TextBox(name='targ_cals', kind='text', default_value='0'),
               TextBox(name='targ_carbs', kind='text', default_value='0'),
               TextBox(name='targ_protein', kind='text', default_value='0'),
               Button(text='Create_Meal', url='/create_meal')]))
-
-assert_equal(
- create_food(State(foods=[], targ_cals=0, targ_carbs=0, targ_protein=0, meals=[]), 'a', 100, 10, 10),
- Page(state=State(foods=[Food(name='a', cals=100, carbs=10, protein=10)],
-                 targ_cals=0,
-                 targ_carbs=0,
-                 targ_protein=0,
-                 meals=[]),
-     content=['Meal Maker 1.0',
-              ' a',
-              Button(text='Input Food', url='/make_food'),
-              Button(text='Make meal', url='/make_meal')]))
-
-assert_equal(
- index(State(foods=[Food(name='a', cals=100, carbs=10, protein=10), Food(name='b', cals=100, carbs=13, protein=50)], targ_cals=300, targ_carbs=30, targ_protein=30, meals=Meal(foods=[], cals=0, carbs=0, protein=0))),
- Page(state=State(foods=[Food(name='a', cals=100, carbs=10, protein=10), Food(name='b', cals=100, carbs=13, protein=50)],
-                 targ_cals=300,
-                 targ_carbs=30,
-                 targ_protein=30,
-                 meals=Meal(foods=[], cals=0, carbs=0, protein=0)),
-     content=['Meal Maker 1.0',
-              ' a b',
-              Button(text='Input Food', url='/make_food'),
-              Button(text='Make meal', url='/make_meal')]))
-
-assert_equal(
- index(State(foods=[], targ_cals=0, targ_carbs=0, targ_protein=0, meals=[])),
- Page(state=State(foods=[], targ_cals=0, targ_carbs=0, targ_protein=0, meals=[]),
-     content=['Meal Maker 1.0',
-              '',
-              Button(text='Input Food', url='/make_food'),
-              Button(text='Make meal', url='/make_meal')]))
 
 assert_equal(
  make_food(State(foods=[], targ_cals=0, targ_carbs=0, targ_protein=0, meals=[])),
@@ -179,20 +158,72 @@ assert_equal(
               Button(text='Create Food', url='/create_food')]))
 
 assert_equal(
- create_food(State(foods=[Food(name='a', cals=100, carbs=10, protein=10)], targ_cals=0, targ_carbs=0, targ_protein=0, meals=[]), 'b', 100, 13, 50),
- Page(state=State(foods=[Food(name='a', cals=100, carbs=10, protein=10), Food(name='b', cals=100, carbs=13, protein=50)],
+ make_meal(State(foods=[Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Cheese', cals=80, carbs=2, protein=8)], targ_cals=0, targ_carbs=0, targ_protein=0, meals=[])),
+ Page(state=State(foods=[Food(name='Bread', cals=200, carbs=10, protein=3),
+                        Food(name='Cheese', cals=80, carbs=2, protein=8)],
+                 targ_cals=0,
+                 targ_carbs=0,
+                 targ_protein=0,
+                 meals=[]),
+     content=['Meal Making Page',
+              TextBox(name='targ_cals', kind='text', default_value='0'),
+              TextBox(name='targ_carbs', kind='text', default_value='0'),
+              TextBox(name='targ_protein', kind='text', default_value='0'),
+              Button(text='Create_Meal', url='/create_meal')]))
+
+assert_equal(
+ create_food(State(foods=[], targ_cals=0, targ_carbs=0, targ_protein=0, meals=[]), 'Bread', 200, 10, 3),
+ Page(state=State(foods=[Food(name='Bread', cals=200, carbs=10, protein=3)],
                  targ_cals=0,
                  targ_carbs=0,
                  targ_protein=0,
                  meals=[]),
      content=['Meal Maker 1.0',
-              ' a b',
+              ' Bread',
               Button(text='Input Food', url='/make_food'),
-              Button(text='Make meal', url='/make_meal')]))
+              Button(text='Make meal', url='/make_meal'),
+              Button(text='View Meals', url='/meal_page'),
+              Button(text='View Foods', url='/food_page')]))
 
 assert_equal(
- make_food(State(foods=[Food(name='a', cals=100, carbs=10, protein=10)], targ_cals=0, targ_carbs=0, targ_protein=0, meals=[])),
- Page(state=State(foods=[Food(name='a', cals=100, carbs=10, protein=10)],
+ index(State(foods=[Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Cheese', cals=80, carbs=2, protein=8)], targ_cals=2000, targ_carbs=100, targ_protein=100, meals=Meal(foods=[Food(name='Cheese', cals=80, carbs=2, protein=8), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Cheese', cals=80, carbs=2, protein=8), Food(name='Cheese', cals=80, carbs=2, protein=8), Food(name='Cheese', cals=80, carbs=2, protein=8), Food(name='Cheese', cals=80, carbs=2, protein=8), Food(name='Cheese', cals=80, carbs=2, protein=8), Food(name='Cheese', cals=80, carbs=2, protein=8), Food(name='Cheese', cals=80, carbs=2, protein=8), Food(name='Cheese', cals=80, carbs=2, protein=8)], cals=2720, carbs=118, protein=102))),
+ Page(state=State(foods=[Food(name='Bread', cals=200, carbs=10, protein=3),
+                        Food(name='Cheese', cals=80, carbs=2, protein=8)],
+                 targ_cals=2000,
+                 targ_carbs=100,
+                 targ_protein=100,
+                 meals=Meal(foods=[Food(name='Cheese', cals=80, carbs=2, protein=8),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Cheese', cals=80, carbs=2, protein=8),
+                                   Food(name='Cheese', cals=80, carbs=2, protein=8),
+                                   Food(name='Cheese', cals=80, carbs=2, protein=8),
+                                   Food(name='Cheese', cals=80, carbs=2, protein=8),
+                                   Food(name='Cheese', cals=80, carbs=2, protein=8),
+                                   Food(name='Cheese', cals=80, carbs=2, protein=8),
+                                   Food(name='Cheese', cals=80, carbs=2, protein=8),
+                                   Food(name='Cheese', cals=80, carbs=2, protein=8)],
+                            cals=2720,
+                            carbs=118,
+                            protein=102)),
+     content=['Meal Maker 1.0',
+              ' Bread Cheese',
+              Button(text='Input Food', url='/make_food'),
+              Button(text='Make meal', url='/make_meal'),
+              Button(text='View Meals', url='/meal_page'),
+              Button(text='View Foods', url='/food_page')]))
+
+assert_equal(
+ make_food(State(foods=[Food(name='Bread', cals=200, carbs=10, protein=3)], targ_cals=0, targ_carbs=0, targ_protein=0, meals=[])),
+ Page(state=State(foods=[Food(name='Bread', cals=200, carbs=10, protein=3)],
                  targ_cals=0,
                  targ_carbs=0,
                  targ_protein=0,
@@ -204,7 +235,386 @@ assert_equal(
               TextBox(name='protein', kind='text', default_value='0'),
               Button(text='Create Food', url='/create_food')]))
 
+assert_equal(
+ meal_page(State(foods=[Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Cheese', cals=80, carbs=2, protein=8)], targ_cals=2000, targ_carbs=100, targ_protein=100, meals=Meal(foods=[Food(name='Cheese', cals=80, carbs=2, protein=8), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Cheese', cals=80, carbs=2, protein=8), Food(name='Cheese', cals=80, carbs=2, protein=8), Food(name='Cheese', cals=80, carbs=2, protein=8), Food(name='Cheese', cals=80, carbs=2, protein=8), Food(name='Cheese', cals=80, carbs=2, protein=8), Food(name='Cheese', cals=80, carbs=2, protein=8), Food(name='Cheese', cals=80, carbs=2, protein=8), Food(name='Cheese', cals=80, carbs=2, protein=8)], cals=2720, carbs=118, protein=102))),
+ Page(state=State(foods=[Food(name='Bread', cals=200, carbs=10, protein=3),
+                        Food(name='Cheese', cals=80, carbs=2, protein=8)],
+                 targ_cals=2000,
+                 targ_carbs=100,
+                 targ_protein=100,
+                 meals=Meal(foods=[Food(name='Cheese', cals=80, carbs=2, protein=8),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Cheese', cals=80, carbs=2, protein=8),
+                                   Food(name='Cheese', cals=80, carbs=2, protein=8),
+                                   Food(name='Cheese', cals=80, carbs=2, protein=8),
+                                   Food(name='Cheese', cals=80, carbs=2, protein=8),
+                                   Food(name='Cheese', cals=80, carbs=2, protein=8),
+                                   Food(name='Cheese', cals=80, carbs=2, protein=8),
+                                   Food(name='Cheese', cals=80, carbs=2, protein=8),
+                                   Food(name='Cheese', cals=80, carbs=2, protein=8)],
+                            cals=2720,
+                            carbs=118,
+                            protein=102)),
+     content=['Meals!',
+              "Meal(foods=[Food(name='Cheese', cals=80, carbs=2, protein=8), Food(name='Bread', cals=200, carbs=10, "
+              "protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Bread', cals=200, carbs=10, "
+              "protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Bread', cals=200, carbs=10, "
+              "protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Bread', cals=200, carbs=10, "
+              "protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Bread', cals=200, carbs=10, "
+              "protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Cheese', cals=80, carbs=2, "
+              "protein=8), Food(name='Cheese', cals=80, carbs=2, protein=8), Food(name='Cheese', cals=80, carbs=2, "
+              "protein=8), Food(name='Cheese', cals=80, carbs=2, protein=8), Food(name='Cheese', cals=80, carbs=2, "
+              "protein=8), Food(name='Cheese', cals=80, carbs=2, protein=8), Food(name='Cheese', cals=80, carbs=2, "
+              "protein=8), Food(name='Cheese', cals=80, carbs=2, protein=8)], cals=2720, carbs=118, protein=102)",
+              Button(text='Go Home', url='/')]))
 
+assert_equal(
+ create_meal(State(foods=[Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Cheese', cals=80, carbs=2, protein=8)], targ_cals=0, targ_carbs=0, targ_protein=0, meals=[]), 2000, 100, 100),
+ Page(state=State(foods=[Food(name='Bread', cals=200, carbs=10, protein=3),
+                        Food(name='Cheese', cals=80, carbs=2, protein=8)],
+                 targ_cals=2000,
+                 targ_carbs=100,
+                 targ_protein=100,
+                 meals=Meal(foods=[], cals=0, carbs=0, protein=0)),
+     content=['Meal(foods=[], cals=0, carbs=0, protein=0)', Button(text='Go Home', url='/')]))
+
+assert_equal(
+ index(State(foods=[], targ_cals=0, targ_carbs=0, targ_protein=0, meals=[])),
+ Page(state=State(foods=[], targ_cals=0, targ_carbs=0, targ_protein=0, meals=[]),
+     content=['Meal Maker 1.0',
+              '',
+              Button(text='Input Food', url='/make_food'),
+              Button(text='Make meal', url='/make_meal'),
+              Button(text='View Meals', url='/meal_page'),
+              Button(text='View Foods', url='/food_page')]))
+
+assert_equal(
+ create_food(State(foods=[Food(name='Bread', cals=200, carbs=10, protein=3)], targ_cals=0, targ_carbs=0, targ_protein=0, meals=[]), 'Cheese', 80, 2, 8),
+ Page(state=State(foods=[Food(name='Bread', cals=200, carbs=10, protein=3),
+                        Food(name='Cheese', cals=80, carbs=2, protein=8)],
+                 targ_cals=0,
+                 targ_carbs=0,
+                 targ_protein=0,
+                 meals=[]),
+     content=['Meal Maker 1.0',
+              ' Bread Cheese',
+              Button(text='Input Food', url='/make_food'),
+              Button(text='Make meal', url='/make_meal'),
+              Button(text='View Meals', url='/meal_page'),
+              Button(text='View Foods', url='/food_page')]))
+
+assert_equal(
+ create_meal(State(foods=[Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Cheese', cals=80, carbs=2, protein=8)], targ_cals=2000, targ_carbs=100, targ_protein=100, meals=Meal(foods=[], cals=0, carbs=0, protein=0)), 2000, 100, 100),
+ Page(state=State(foods=[Food(name='Bread', cals=200, carbs=10, protein=3),
+                        Food(name='Cheese', cals=80, carbs=2, protein=8)],
+                 targ_cals=2000,
+                 targ_carbs=100,
+                 targ_protein=100,
+                 meals=Meal(foods=[Food(name='Cheese', cals=80, carbs=2, protein=8),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Cheese', cals=80, carbs=2, protein=8),
+                                   Food(name='Cheese', cals=80, carbs=2, protein=8),
+                                   Food(name='Cheese', cals=80, carbs=2, protein=8),
+                                   Food(name='Cheese', cals=80, carbs=2, protein=8),
+                                   Food(name='Cheese', cals=80, carbs=2, protein=8),
+                                   Food(name='Cheese', cals=80, carbs=2, protein=8),
+                                   Food(name='Cheese', cals=80, carbs=2, protein=8),
+                                   Food(name='Cheese', cals=80, carbs=2, protein=8)],
+                            cals=2720,
+                            carbs=118,
+                            protein=102)),
+     content=["Meal(foods=[Food(name='Cheese', cals=80, carbs=2, protein=8), Food(name='Bread', cals=200, carbs=10, "
+              "protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Bread', cals=200, carbs=10, "
+              "protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Bread', cals=200, carbs=10, "
+              "protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Bread', cals=200, carbs=10, "
+              "protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Bread', cals=200, carbs=10, "
+              "protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Cheese', cals=80, carbs=2, "
+              "protein=8), Food(name='Cheese', cals=80, carbs=2, protein=8), Food(name='Cheese', cals=80, carbs=2, "
+              "protein=8), Food(name='Cheese', cals=80, carbs=2, protein=8), Food(name='Cheese', cals=80, carbs=2, "
+              "protein=8), Food(name='Cheese', cals=80, carbs=2, protein=8), Food(name='Cheese', cals=80, carbs=2, "
+              "protein=8), Food(name='Cheese', cals=80, carbs=2, protein=8)], cals=2720, carbs=118, protein=102)",
+              Button(text='Go Home', url='/')]))
+
+assert_equal(
+ index(State(foods=[Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Cheese', cals=80, carbs=2, protein=8)], targ_cals=2000, targ_carbs=100, targ_protein=100, meals=Meal(foods=[], cals=0, carbs=0, protein=0))),
+ Page(state=State(foods=[Food(name='Bread', cals=200, carbs=10, protein=3),
+                        Food(name='Cheese', cals=80, carbs=2, protein=8)],
+                 targ_cals=2000,
+                 targ_carbs=100,
+                 targ_protein=100,
+                 meals=Meal(foods=[], cals=0, carbs=0, protein=0)),
+     content=['Meal Maker 1.0',
+              ' Bread Cheese',
+              Button(text='Input Food', url='/make_food'),
+              Button(text='Make meal', url='/make_meal'),
+              Button(text='View Meals', url='/meal_page'),
+              Button(text='View Foods', url='/food_page')]))
+assert_equal(
+ make_meal(State(foods=[Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Cheese', cals=80, carbs=2, protein=8)], targ_cals=2000, targ_carbs=100, targ_protein=100, meals=Meal(foods=[], cals=0, carbs=0, protein=0))),
+ Page(state=State(foods=[Food(name='Bread', cals=200, carbs=10, protein=3),
+                        Food(name='Cheese', cals=80, carbs=2, protein=8)],
+                 targ_cals=2000,
+                 targ_carbs=100,
+                 targ_protein=100,
+                 meals=Meal(foods=[], cals=0, carbs=0, protein=0)),
+     content=['Meal Making Page',
+              TextBox(name='targ_cals', kind='text', default_value='0'),
+              TextBox(name='targ_carbs', kind='text', default_value='0'),
+              TextBox(name='targ_protein', kind='text', default_value='0'),
+              Button(text='Create_Meal', url='/create_meal')]))
+
+assert_equal(
+ make_food(State(foods=[], targ_cals=0, targ_carbs=0, targ_protein=0, meals=[])),
+ Page(state=State(foods=[], targ_cals=0, targ_carbs=0, targ_protein=0, meals=[]),
+     content=['Enter Food',
+              TextBox(name='name', kind='text', default_value=''),
+              TextBox(name='cals', kind='text', default_value='0'),
+              TextBox(name='carbs', kind='text', default_value='0'),
+              TextBox(name='protein', kind='text', default_value='0'),
+              Button(text='Create Food', url='/create_food')]))
+
+assert_equal(
+ make_meal(State(foods=[Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Cheese', cals=80, carbs=2, protein=8)], targ_cals=0, targ_carbs=0, targ_protein=0, meals=[])),
+ Page(state=State(foods=[Food(name='Bread', cals=200, carbs=10, protein=3),
+                        Food(name='Cheese', cals=80, carbs=2, protein=8)],
+                 targ_cals=0,
+                 targ_carbs=0,
+                 targ_protein=0,
+                 meals=[]),
+     content=['Meal Making Page',
+              TextBox(name='targ_cals', kind='text', default_value='0'),
+              TextBox(name='targ_carbs', kind='text', default_value='0'),
+              TextBox(name='targ_protein', kind='text', default_value='0'),
+              Button(text='Create_Meal', url='/create_meal')]))
+
+assert_equal(
+ create_food(State(foods=[], targ_cals=0, targ_carbs=0, targ_protein=0, meals=[]), 'Bread', 200, 10, 3),
+ Page(state=State(foods=[Food(name='Bread', cals=200, carbs=10, protein=3)],
+                 targ_cals=0,
+                 targ_carbs=0,
+                 targ_protein=0,
+                 meals=[]),
+     content=['Meal Maker 1.0',
+              ' Bread',
+              Button(text='Input Food', url='/make_food'),
+              Button(text='Make meal', url='/make_meal'),
+              Button(text='View Meals', url='/meal_page'),
+              Button(text='View Foods', url='/food_page')]))
+
+assert_equal(
+ index(State(foods=[Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Cheese', cals=80, carbs=2, protein=8)], targ_cals=2000, targ_carbs=100, targ_protein=100, meals=Meal(foods=[Food(name='Cheese', cals=80, carbs=2, protein=8), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Cheese', cals=80, carbs=2, protein=8), Food(name='Cheese', cals=80, carbs=2, protein=8), Food(name='Cheese', cals=80, carbs=2, protein=8), Food(name='Cheese', cals=80, carbs=2, protein=8), Food(name='Cheese', cals=80, carbs=2, protein=8), Food(name='Cheese', cals=80, carbs=2, protein=8), Food(name='Cheese', cals=80, carbs=2, protein=8), Food(name='Cheese', cals=80, carbs=2, protein=8)], cals=2720, carbs=118, protein=102))),
+ Page(state=State(foods=[Food(name='Bread', cals=200, carbs=10, protein=3),
+                        Food(name='Cheese', cals=80, carbs=2, protein=8)],
+                 targ_cals=2000,
+                 targ_carbs=100,
+                 targ_protein=100,
+                 meals=Meal(foods=[Food(name='Cheese', cals=80, carbs=2, protein=8),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Cheese', cals=80, carbs=2, protein=8),
+                                   Food(name='Cheese', cals=80, carbs=2, protein=8),
+                                   Food(name='Cheese', cals=80, carbs=2, protein=8),
+                                   Food(name='Cheese', cals=80, carbs=2, protein=8),
+                                   Food(name='Cheese', cals=80, carbs=2, protein=8),
+                                   Food(name='Cheese', cals=80, carbs=2, protein=8),
+                                   Food(name='Cheese', cals=80, carbs=2, protein=8),
+                                   Food(name='Cheese', cals=80, carbs=2, protein=8)],
+                            cals=2720,
+                            carbs=118,
+                            protein=102)),
+     content=['Meal Maker 1.0',
+              ' Bread Cheese',
+              Button(text='Input Food', url='/make_food'),
+              Button(text='Make meal', url='/make_meal'),
+              Button(text='View Meals', url='/meal_page'),
+              Button(text='View Foods', url='/food_page')]))
+
+assert_equal(
+ make_food(State(foods=[Food(name='Bread', cals=200, carbs=10, protein=3)], targ_cals=0, targ_carbs=0, targ_protein=0, meals=[])),
+ Page(state=State(foods=[Food(name='Bread', cals=200, carbs=10, protein=3)],
+                 targ_cals=0,
+                 targ_carbs=0,
+                 targ_protein=0,
+                 meals=[]),
+     content=['Enter Food',
+              TextBox(name='name', kind='text', default_value=''),
+              TextBox(name='cals', kind='text', default_value='0'),
+              TextBox(name='carbs', kind='text', default_value='0'),
+              TextBox(name='protein', kind='text', default_value='0'),
+              Button(text='Create Food', url='/create_food')]))
+
+assert_equal(
+ meal_page(State(foods=[Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Cheese', cals=80, carbs=2, protein=8)], targ_cals=2000, targ_carbs=100, targ_protein=100, meals=Meal(foods=[Food(name='Cheese', cals=80, carbs=2, protein=8), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Cheese', cals=80, carbs=2, protein=8), Food(name='Cheese', cals=80, carbs=2, protein=8), Food(name='Cheese', cals=80, carbs=2, protein=8), Food(name='Cheese', cals=80, carbs=2, protein=8), Food(name='Cheese', cals=80, carbs=2, protein=8), Food(name='Cheese', cals=80, carbs=2, protein=8), Food(name='Cheese', cals=80, carbs=2, protein=8), Food(name='Cheese', cals=80, carbs=2, protein=8)], cals=2720, carbs=118, protein=102))),
+ Page(state=State(foods=[Food(name='Bread', cals=200, carbs=10, protein=3),
+                        Food(name='Cheese', cals=80, carbs=2, protein=8)],
+                 targ_cals=2000,
+                 targ_carbs=100,
+                 targ_protein=100,
+                 meals=Meal(foods=[Food(name='Cheese', cals=80, carbs=2, protein=8),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Cheese', cals=80, carbs=2, protein=8),
+                                   Food(name='Cheese', cals=80, carbs=2, protein=8),
+                                   Food(name='Cheese', cals=80, carbs=2, protein=8),
+                                   Food(name='Cheese', cals=80, carbs=2, protein=8),
+                                   Food(name='Cheese', cals=80, carbs=2, protein=8),
+                                   Food(name='Cheese', cals=80, carbs=2, protein=8),
+                                   Food(name='Cheese', cals=80, carbs=2, protein=8),
+                                   Food(name='Cheese', cals=80, carbs=2, protein=8)],
+                            cals=2720,
+                            carbs=118,
+                            protein=102)),
+     content=['Meals!',
+              "Meal(foods=[Food(name='Cheese', cals=80, carbs=2, protein=8), Food(name='Bread', cals=200, carbs=10, "
+              "protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Bread', cals=200, carbs=10, "
+              "protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Bread', cals=200, carbs=10, "
+              "protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Bread', cals=200, carbs=10, "
+              "protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Bread', cals=200, carbs=10, "
+              "protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Cheese', cals=80, carbs=2, "
+              "protein=8), Food(name='Cheese', cals=80, carbs=2, protein=8), Food(name='Cheese', cals=80, carbs=2, "
+              "protein=8), Food(name='Cheese', cals=80, carbs=2, protein=8), Food(name='Cheese', cals=80, carbs=2, "
+              "protein=8), Food(name='Cheese', cals=80, carbs=2, protein=8), Food(name='Cheese', cals=80, carbs=2, "
+              "protein=8), Food(name='Cheese', cals=80, carbs=2, protein=8)], cals=2720, carbs=118, protein=102)",
+              Button(text='Go Home', url='/')]))
+
+assert_equal(
+ create_meal(State(foods=[Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Cheese', cals=80, carbs=2, protein=8)], targ_cals=0, targ_carbs=0, targ_protein=0, meals=[]), 2000, 100, 100),
+ Page(state=State(foods=[Food(name='Bread', cals=200, carbs=10, protein=3),
+                        Food(name='Cheese', cals=80, carbs=2, protein=8)],
+                 targ_cals=2000,
+                 targ_carbs=100,
+                 targ_protein=100,
+                 meals=Meal(foods=[], cals=0, carbs=0, protein=0)),
+     content=['Meal(foods=[], cals=0, carbs=0, protein=0)', Button(text='Go Home', url='/')]))
+
+assert_equal(
+ index(State(foods=[], targ_cals=0, targ_carbs=0, targ_protein=0, meals=[])),
+ Page(state=State(foods=[], targ_cals=0, targ_carbs=0, targ_protein=0, meals=[]),
+     content=['Meal Maker 1.0',
+              '',
+              Button(text='Input Food', url='/make_food'),
+              Button(text='Make meal', url='/make_meal'),
+              Button(text='View Meals', url='/meal_page'),
+              Button(text='View Foods', url='/food_page')]))
+
+assert_equal(
+ create_food(State(foods=[Food(name='Bread', cals=200, carbs=10, protein=3)], targ_cals=0, targ_carbs=0, targ_protein=0, meals=[]), 'Cheese', 80, 2, 8),
+ Page(state=State(foods=[Food(name='Bread', cals=200, carbs=10, protein=3),
+                        Food(name='Cheese', cals=80, carbs=2, protein=8)],
+                 targ_cals=0,
+                 targ_carbs=0,
+                 targ_protein=0,
+                 meals=[]),
+     content=['Meal Maker 1.0',
+              ' Bread Cheese',
+              Button(text='Input Food', url='/make_food'),
+              Button(text='Make meal', url='/make_meal'),
+              Button(text='View Meals', url='/meal_page'),
+              Button(text='View Foods', url='/food_page')]))
+
+assert_equal(
+ create_meal(State(foods=[Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Cheese', cals=80, carbs=2, protein=8)], targ_cals=2000, targ_carbs=100, targ_protein=100, meals=Meal(foods=[], cals=0, carbs=0, protein=0)), 2000, 100, 100),
+ Page(state=State(foods=[Food(name='Bread', cals=200, carbs=10, protein=3),
+                        Food(name='Cheese', cals=80, carbs=2, protein=8)],
+                 targ_cals=2000,
+                 targ_carbs=100,
+                 targ_protein=100,
+                 meals=Meal(foods=[Food(name='Cheese', cals=80, carbs=2, protein=8),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Bread', cals=200, carbs=10, protein=3),
+                                   Food(name='Cheese', cals=80, carbs=2, protein=8),
+                                   Food(name='Cheese', cals=80, carbs=2, protein=8),
+                                   Food(name='Cheese', cals=80, carbs=2, protein=8),
+                                   Food(name='Cheese', cals=80, carbs=2, protein=8),
+                                   Food(name='Cheese', cals=80, carbs=2, protein=8),
+                                   Food(name='Cheese', cals=80, carbs=2, protein=8),
+                                   Food(name='Cheese', cals=80, carbs=2, protein=8),
+                                   Food(name='Cheese', cals=80, carbs=2, protein=8)],
+                            cals=2720,
+                            carbs=118,
+                            protein=102)),
+     content=["Meal(foods=[Food(name='Cheese', cals=80, carbs=2, protein=8), Food(name='Bread', cals=200, carbs=10, "
+              "protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Bread', cals=200, carbs=10, "
+              "protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Bread', cals=200, carbs=10, "
+              "protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Bread', cals=200, carbs=10, "
+              "protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Bread', cals=200, carbs=10, "
+              "protein=3), Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Cheese', cals=80, carbs=2, "
+              "protein=8), Food(name='Cheese', cals=80, carbs=2, protein=8), Food(name='Cheese', cals=80, carbs=2, "
+              "protein=8), Food(name='Cheese', cals=80, carbs=2, protein=8), Food(name='Cheese', cals=80, carbs=2, "
+              "protein=8), Food(name='Cheese', cals=80, carbs=2, protein=8), Food(name='Cheese', cals=80, carbs=2, "
+              "protein=8), Food(name='Cheese', cals=80, carbs=2, protein=8)], cals=2720, carbs=118, protein=102)",
+              Button(text='Go Home', url='/')]))
+
+assert_equal(
+ index(State(foods=[Food(name='Bread', cals=200, carbs=10, protein=3), Food(name='Cheese', cals=80, carbs=2, protein=8)], targ_cals=2000, targ_carbs=100, targ_protein=100, meals=Meal(foods=[], cals=0, carbs=0, protein=0))),
+ Page(state=State(foods=[Food(name='Bread', cals=200, carbs=10, protein=3),
+                        Food(name='Cheese', cals=80, carbs=2, protein=8)],
+                 targ_cals=2000,
+                 targ_carbs=100,
+                 targ_protein=100,
+                 meals=Meal(foods=[], cals=0, carbs=0, protein=0)),
+     content=['Meal Maker 1.0',
+              ' Bread Cheese',
+              Button(text='Input Food', url='/make_food'),
+              Button(text='Make meal', url='/make_meal'),
+              Button(text='View Meals', url='/meal_page'),
+              Button(text='View Foods', url='/food_page')]))
+
+
+set_site_information(
+    author="benbaker@udel.edu",
+    description="""A website that takes inputs for food macronutrients
+    and autogenerates meals bassed off of them.""",
+    sources=["Drafter Documentation, Random documentation"],
+    planning=[I didn't plan],
+    links=["https://github.com/benbaker-udel/CS106-Final-Project",
+    "https://drive.google.com/file/d/1rBJJmNHyRt7f0_hzrknw2pwkaoIWl6Lb/view?usp=sharing"]
+)
+hide_debug_information()
+set_website_title("Your Website Title")
+set_website_framed(False)
 
 
 start_server(State([],0,0,0,[]))
